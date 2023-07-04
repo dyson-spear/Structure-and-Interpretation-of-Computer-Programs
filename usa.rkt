@@ -21,11 +21,6 @@
       ((> n 0)
        (begin
          (cond
-           ((> n 9)
-            (begin
-              (print-stars 6)
-              (display " ")
-              (print-stripes 21)))
            ((> n 7)
             (begin
               (print-stars 6)
