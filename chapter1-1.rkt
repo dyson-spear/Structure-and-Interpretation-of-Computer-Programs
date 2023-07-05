@@ -45,6 +45,7 @@
 (display "Exercise 1.2: ")
 (/ (+ 5 4 (- 2 (- 3 (+ 6 (/ 4 5)))))
    (* 3 (- 6 2) (- 2 7)))
+
 ;; Exercise 1.3 Define a procedure that takes three numbers as arguments and returns the sum of the squares of the two larger numbers.
 (display "Exercise 1.3: ")
 (define (larger-squares x y z)
@@ -86,6 +87,59 @@
 ;With normal-order the parameters are evaluated as needed, so (p) is never evaluated and we get 0
 
 ;; Exercise 1.6
+(define (good-enough? guess x)
+  (< (abs (- (square guess) x)) 0.001))
+(define (improve guess x)
+  (average guess (/ x guess)))
+(define (average x y)
+  (/ (+ x y) 2))
 
+(define (new-if predicate then-clause else-clause)
+  (cond (predicate then-clause)
+        (else else-clause)))
+(define (sqrt-iter guess x)
+  (if (good-enough? guess x)
+      guess
+      (sqrt-iter (improve guess x)
+                 x)))
+;Delighted, Alyssa uses new-if to rewrite the square-root program:
+(define (sqrt-iter2 guess x)
+  (new-if (good-enough? guess x)
+          guess
+          (sqrt-iter2 (improve guess x)
+                     x)))
 
+;What happens when Alyssa attempts to use this to compute square roots? Explain.
+;Answer: it runs forever with 'guess' getting larger and larger. I think this is because of the "applicative-order" evaluation. We need the special form because we don't want to evaluate the 'else' case unless needed
 
+;; Exercise 1.7
+; for small numbers the difference between your guess squared and the actual value could be less than 0.001 while still being very far form the real square root.
+
+; for large numbers there is some loss of precision that could cause you to skip over the actual solution
+
+(define (sqrt-iter3 guess x prev-guess)
+  (if (good-enough-v2 guess prev-guess)
+      guess
+      (sqrt-iter3 (improve guess x) x guess)))
+
+;improved good-enough check
+(define (good-enough-v2 guess prev-guess)
+  (< (abs (/ (- guess prev-guess) guess)) 0.001))
+(define (sqrt x)
+  (sqrt-iter3 1 x 0))
+(display "Exercise 1.7: sqrt of .0001, new vs old good-enough?. actual value = 0.01 ")(newline)
+(display "new: ")(sqrt .0001)
+(display "old: ")(sqrt-iter 1 .0001)
+
+;; Exercise 1.8
+(define (cube-root-iter guess x prev-guess)
+  (if (good-enough-v2 guess prev-guess)
+      guess
+      (cube-root-iter (improve-cube-root guess x) x guess)))
+(define (improve-cube-root guess x)
+  (/ (+ (/ x (* guess guess)) (* 2 guess)) 3))
+(define (cube-root x)
+  (cube-root-iter 1 x 0))
+(display "Exercise 1.8: ")(newline)
+(display "cube root of 27: ")
+(cube-root 27)
