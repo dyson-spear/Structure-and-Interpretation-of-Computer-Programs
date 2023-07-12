@@ -176,3 +176,99 @@
   (iter 1))
 (define quarter-pi 0.785398)
 (tan-cf quarter-pi 100)
+
+;Average Damping
+(define (average-damp f)
+  (lambda (x) (average x (f x))))
+;Derivative of a function
+(define (deriv g)
+  (lambda (x)
+    (/ (- (g (+ x dx)) (g x))
+       dx)))
+(define dx 0.00001)
+;newtons method
+(define (newton-transform g)
+  (lambda (x)
+    (- x (/ (g x) ((deriv g) x)))))
+(define (newtons-method g guess)
+  (fixed-point (newton-transform g) guess))
+
+;; Exercise 1.40 - Define a procedure cubic that can be used together with the newtons-method procedure in expressions of the form
+;(newtons-method (cubic a b c) 1)
+;to approximate zeros of the cubic x^3 + ax^2 + bx + c
+
+(define (cubic a b c)
+  (lambda (x)
+    (+ (* x x x) (* a (* x x)) (* b x) c)))
+(newtons-method (cubic 1 2 3) 1)
+
+;; Exercise 1.41.  Define a procedure double that takes a procedure of one argument as argument and returns a procedure that applies the original procedure twice.
+(define (double f)
+  (lambda (x)
+    (f (f x))))
+(((double (double double)) inc) 5)
+
+;; Exercise 1.42 - Let f and g be two one-argument functions. Define a procedure compose that implements composition.
+(define (compose f g)
+  (lambda (x)
+    (f (g x))))
+((compose square inc) 6)
+
+;; Exercise 1.43.  If f is a numerical function and n is a positive integer...
+(define (repeated f n)
+  (if (= n 1)
+      f
+      (compose f (repeated f (dec n)))))
+((repeated square 2) 5)
+
+;; Exercise 1.44 - f is a function and dx is some small number, then the smoothed version of f is the function whose value at a point x is the average of f(x - dx), f(x), and f(x + dx). Write a procedure smooth that takes as input a procedure that computes f and returns a procedure that computes the smoothed f.
+
+(define (smooth f)
+  (lambda (x)
+    (/ (+ (f (- x dx)) (f x) (f (+ x dx))) 3)))
+;It is sometimes valuable to repeatedly smooth a function (that is, smooth the smoothed function, and so on) to obtained the n-fold smoothed function. Show how to generate the n-fold smoothed function of any given function using smooth and repeated from exercise 1.43.
+(define (repeated-smooth f n)
+  ((repeated smooth n) f))
+
+;; Exercise 1.45
+
+;experimenting
+(define (nth-root-helper x n)
+  (lambda (y)
+    (/ x (expt y (- n 1)))))
+(fixed-point-print (average-damp (nth-root-helper 5 3)) 1.0)
+(fixed-point-print ((repeated average-damp 2) (nth-root-helper 5 4)) 1.0)
+(fixed-point-print ((repeated average-damp 2) (nth-root-helper 5 7)) 1.0);2 damps works fine for 7th root. going to assume n damps is plenty.
+
+(define (nth-root x n)
+  (fixed-point ((repeated average-damp n) (lambda (y)
+                                                  (/ x (expt y (- n 1))))) 1.0)) 
+(nth-root 5 3)
+(nth-root 5 10) ;accuracy drops off as n gets larger
+
+;; Exercise 1.46
+(define (iterative-improve good-enough? improve)
+  (define (iter guess)
+    (if (good-enough? guess)
+        guess
+        (iter (improve guess))))
+  (lambda (initial-guess) (iter initial-guess)))
+
+;rewrite sqrt in terms of iterative-improve
+(define (sqrt-iter-improve x)
+  ((iterative-improve (lambda (z)
+                       (< (abs (- (square z) x)) 0.001))
+                     (lambda (guess)
+                       (average guess (/ x guess)))) 1.0))
+(sqrt-iter-improve 2) 
+
+;rewrite fixed-point
+
+(define (fixed-point-iter f first-guess)
+  ((iterative-improve (lambda (x) (<(abs(- (x (f x)))) 0.001)) (lambda (x) (f x)) first-guess)))
+
+;test by using new fixed-point-iter in nth-root procedure
+(define (nth-root-fixed-point-iter x n)
+  (fixed-point-iter ((repeated average-damp n) (lambda (y)
+                                                  (/ x (expt y (- n 1))))) 1.0)) 
+(nth-root 5 3);nice
