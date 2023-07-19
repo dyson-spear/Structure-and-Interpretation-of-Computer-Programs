@@ -226,3 +226,82 @@
 (display "church 2+2: ")(church-to-int (church+ two two))
 (display "church 0+0: ")(church-to-int (church+ zero zero))
 ;lfg!
+
+(define (mul-interval x y)
+  (let ((p1 (* (lower-bound x) (lower-bound y)))
+        (p2 (* (lower-bound x) (upper-bound y)))
+        (p3 (* (upper-bound x) (lower-bound y)))
+        (p4 (* (upper-bound x) (upper-bound y))))
+    (make-interval (min p1 p2 p3 p4)
+                   (max p1 p2 p3 p4))))
+
+(define (div-interval x y)
+  (mul-interval x 
+                (make-interval (/ 1.0 (upper-bound y))
+                               (/ 1.0 (lower-bound y)))))
+
+;; Exercise 2.7. Define selectors upper-bound and lower-bound to complete the implementation.
+
+(define (make-interval a b) (cons a b))
+
+(define (lower-bound x)
+  (min (car x) (cdr x)))
+(define (upper-bound x)
+  (max (car x) (cdr x)))
+
+;; Exercise 2.8.  Using reasoning analogous to Alyssa's, describe how the difference of two intervals may be computed. Define a corresponding subtraction procedure, called sub-interval.
+(define (add-interval x y)
+  (make-interval (+ (lower-bound x) (lower-bound y))
+                 (+ (upper-bound x) (upper-bound y))))
+
+;can subtract upper bound of y from lower-bound of x for new lower-bound, and upper x - lower x for new upper-bound
+;i think
+(define (sub-interval x y)
+  (make-interval (- (lower-bound x) (upper-bound y))
+                 (- (upper-bound x) (lower-bound y))))
+
+;; Exercise 2.9.  The width of an interval is half of the difference between its upper and lower bounds. The width is a measure of the uncertainty of the number specified by the interval. 
+(define (width-interval x)
+  (/ (- (upper-bound x) (lower-bound x)) 2))
+
+;;For some arithmetic operations the width of the result of combining two intervals is a function only of the widths of the argument intervals, whereas for others the width of the combination is not a function of the widths of the argument intervals.
+
+;;Show that the width of the sum (or difference) of two intervals is a function only of the widths of the intervals being added (or subtracted). Give examples to show that this is not true for multiplication or division.
+
+;(+ (width-interval a) (width-interval b))
+;should be equal to
+;(width-interval (add-interval a b))
+
+;subbing in add-interval
+;(width-interval (make-interval (+ (lower-bound a) (lower-bound b))
+;                (+ (upper-bound a) (upper-bound b))))
+;sub in width-interval
+;(/ (- (+ (upper-bound a) (upper-bound b)) (+ (lower-bound a) (lower-bound b))) 2)
+;check if above is equal to sum of the width-intervals
+;(+ (/ (- (upper-bound a) (lower-bound a)) 2) (/ (- (upper-bound b) (lower-bound b)) 2))
+; ( (upper a - lower a) / 2 + ( upper b - lower b) / 2)
+; rearrange to get:
+; (( upper a + upper b) - (lower a + lower b)) / 2
+; it's the same!
+; proving sub-interval is the same idea
+
+;;Give examples to show that this is not true for multiplication or division.
+
+(define interval-x (make-interval 1 5))
+(define interval-y (make-interval -2 -1))
+(define interval-zero-width (make-interval 1 1))
+;skipping for now -- not sure
+
+
+;;Exercise 2.10.  Ben Bitdiddle, an expert systems programmer, looks over Alyssa's shoulder and comments that it is not clear what it means to divide by an interval that spans zero. Modify Alyssa's code to check for this condition and to signal an error if it occurs.
+(define (div-interval-v2 x y)
+  (if (= 0 (width-interval y))
+      (error "cannot divide by zero interval")
+      
+  (mul-interval x 
+                (make-interval (/ 1.0 (upper-bound y))
+                               (/ 1.0 (lower-bound y))))))
+;(div-interval-v2 interval-x interval-zero-width)
+
+;;Exercise 2.11. ``By testing the signs of the endpoints of the intervals, it is possible to break mul-interval into nine cases, only one of which requires more than two multiplications.'' Rewrite this procedure using Ben's suggestion.
+
