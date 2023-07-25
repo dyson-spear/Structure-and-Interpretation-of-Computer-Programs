@@ -304,4 +304,39 @@
 ;(div-interval-v2 interval-x interval-zero-width)
 
 ;;Exercise 2.11. ``By testing the signs of the endpoints of the intervals, it is possible to break mul-interval into nine cases, only one of which requires more than two multiplications.'' Rewrite this procedure using Ben's suggestion.
+; (define (mul-interval x y)
+;   (let ((p1 (* (lower-bound x) (lower-bound y)))
+;         (p2 (* (lower-bound x) (upper-bound y)))
+;         (p3 (* (upper-bound x) (lower-bound y)))
+;         (p4 (* (upper-bound x) (upper-bound y))))
+;     (make-interval (min p1 p2 p3 p4)
+;                    (max p1 p2 p3 p4))))
+; 
 
+
+
+;cases
+
+
+; ;all positive
+; p1,p4 
+; ;all negative
+; p4,p1
+; ;(-, +) (+,+)
+; p2, p4
+; ;(+, +) (-,+)
+; p3, p4
+; ;(-,-) (+,+)
+; p2, p3
+; ;(+,+) (-,-)
+; p3,p2
+; ;(-, +) (-, +)
+; check all 4
+; ;-+ --
+; ;-- -+
+
+
+;not going to actually write this out because it is tedius but we would do the checks and multiply the appropriate upper/lower bounds
+
+;; Exercise 2.12 - 2.16
+;skipped
