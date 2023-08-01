@@ -147,3 +147,38 @@
   (list left right))
 (define (make-branch length structure)
   (list length structure))
+;skipped
+
+;; Exercise 2.30
+
+
+(define (square-tree tree)
+  (cond ((null? tree) nil)
+        ((pair? tree) (cons (square-tree (car tree)) (square-tree (cdr tree))))
+        (else (square tree))))
+
+(define (square-tree-map tree)
+  (map (lambda (sub-tree)
+         (if (pair? sub-tree)
+             (square-tree-map sub-tree)
+             (square sub-tree)))
+       tree))
+
+(square-tree
+ (list 1
+       (list 2 (list 3 4) 5)
+       (list 6 7)))
+(square-tree-map
+ (list 1
+       (list 2 (list 3 4) 5)
+       (list 6 7)))
+;; Exercise 2.31 Abstract your answer to exercise 2.30 to produce a procedure tree-map with the property that square-tree could be defined as
+
+(define (tree-map proc items)
+  (cond ((null? items) nil)
+        ((pair? items) (cons (tree-map proc (car items)) (tree-map proc (cdr items))))
+        (else (proc items))))
+(define (square-tree2 tree) (tree-map square tree))
+
+;; Exercise 2.32
+
