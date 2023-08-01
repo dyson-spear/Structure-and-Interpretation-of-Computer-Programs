@@ -180,5 +180,47 @@
         (else (proc items))))
 (define (square-tree2 tree) (tree-map square tree))
 
-;; Exercise 2.32
+;; Exercise 2.32 - Complete the following definition of a procedure that generates the set of subsets of a set and give a clear explanation of why it works:
+;skipped
+
+
+
+(define (accumulate op initial sequence)
+  (if (null? sequence)
+      initial
+      (op (car sequence)
+          (accumulate op initial (cdr sequence)))))
+;; Exercise 2.33.  Fill in the missing expressions to complete the following definitions of some basic list-manipulation operations as accumulations:
+(define (map2 p sequence)
+  (accumulate (lambda (x y)
+                (cons (p x) y))
+              nil
+              sequence))
+(define (append2 seq1 seq2)
+  (accumulate cons seq2 seq1))
+
+(define (length2 sequence)
+  (accumulate (lambda (x y) (inc y)) 0 sequence))
+
+;;Exercise 2.34.  Evaluating a polynomial in x at a given value of x can be formulated as an accumulation
+;skipped
+
+;;Exercise 2.35.  Redefine count-leaves from section 2.2.2 as an accumulation:
+; (define (count-leaves x)
+;   (cond ((null? x) 0)  
+;         ((not (pair? x)) 1)
+;         (else (+ (count-leaves (car x))
+;                  (count-leaves (cdr x))))))
+
+(define (enumerate-tree tree)
+  (cond ((null? tree) nil)
+        ((not (pair? tree)) (list tree))
+        (else (append (enumerate-tree (car tree))
+                      (enumerate-tree (cdr tree))))))
+
+; accumulate <- map <- filter <- enumerate
+(define (count-leaves-accumulate x)
+  (accumulate (lambda (x y) (inc y)) 0 (enumerate-tree x)))
+(define tree2 (cons (list 1 2) (list 3 4)))
+(count-leaves-accumulate (cons tree2 tree2))
 
