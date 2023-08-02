@@ -224,3 +224,56 @@
 (define tree2 (cons (list 1 2) (list 3 4)))
 (count-leaves-accumulate (cons tree2 tree2))
 
+;; Exercise 2.36 - accumulate-n
+(define (accumulate-n op init seqs)
+  (if (null? (car seqs))
+      nil
+      (cons (accumulate op init (map car seqs))
+            (accumulate-n op init (map cdr seqs)))))
+(define list-x (list (list 1 2 3) (list 4 5 6) (list 7 8 9) (list 10 11 12)))
+(accumulate-n + 0 list-x)
+
+;; Exercise 2.37 - vectors and matricies
+(define (dot-product v w)
+  (accumulate + 0 (map * v w)))
+
+(define (matrix-*-vector m v)
+  (map (lambda (row) (dot-product row v)) m))
+
+(define (transpose mat)
+  (accumulate-n cons nil mat))
+
+;for each row in the first matrix, we map the matrix-*-vector function over the rows of the second matrix (which are now the columns of the original matrix)
+(define (matrix-*-matrix m n)
+  (let ((cols (transpose n)))
+    ;do something (in this case another map) for each item (in this case a row) in the given sequence (m)
+    (map
+     ;this lambda is what we're going to apply to each row in m
+     (lambda (row)
+       ;the lambda maps another lambda onto each element of cols
+       (map
+        ;for each col we take the dot product of row and col. map will produce a list of the results.
+        (lambda (col) (dot-product row col))
+        cols))
+         m)))
+
+;;Exercise 2.38.  The accumulate procedure is also known as fold-right, because it combines the first element of the sequence with the result of combining all the elements to the right. There is also a fold-left, which is similar to fold-right, except that it combines elements working in the opposite direction:
+
+(define (fold-left op initial sequence)
+  (define (iter result rest)
+    (if (null? rest)
+        result
+        (iter (op result (car rest))
+              (cdr rest))))
+  (iter initial sequence))
+
+; (op a b) has to be equal to (op b a)
+
+;; Exercise 2.39.   Complete the following definitions of reverse (exercise 2.18) in terms of fold-right and fold-left from exercise 2.38:
+(define (reverse2 sequence)
+  (accumulate (lambda (x y)
+                (append y (list x)))
+              nil
+              sequence))
+(define (reverse3 sequence)
+  (fold-left (lambda (x y) (cons y x)) nil sequence))
