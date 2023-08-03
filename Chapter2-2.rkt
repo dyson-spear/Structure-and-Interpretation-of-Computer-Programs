@@ -1,4 +1,5 @@
 #lang sicp
+(#%require sicp-pict) 
 ;; Exercise 2.17 - Define a procedure last-pair that returns the list that contains only the last element of a given (nonempty) list:
 (define (last-pair x)
   (define (iter remaining prev)
@@ -277,3 +278,80 @@
               sequence))
 (define (reverse3 sequence)
   (fold-left (lambda (x y) (cons y x)) nil sequence))
+
+
+(define (enumerate-interval low high)
+  (if (> low high)
+      nil
+      (cons low (enumerate-interval (+ low 1) high))))
+
+(define (flatmap proc seq)
+  (accumulate append nil (map proc seq)))
+;; Exercise 2.40
+(define (unique-pairs n)
+  (flatmap (lambda (i)
+             (map (lambda (j) (list i j))
+                  (enumerate-interval 1 (- i 1))))
+           (enumerate-interval 1 n)))
+
+(define (filter predicate sequence)
+  (cond ((null? sequence) nil)
+        ((predicate (car sequence))
+         (cons (car sequence)
+               (filter predicate (cdr sequence))))
+        (else (filter predicate (cdr sequence)))))
+(define (prime? n)
+  (define (prime-helper n divisor)
+    (cond ((> (* divisor divisor) n) #t)
+          ((= (remainder n divisor) 0) #f)
+          (else (prime-helper n (+ divisor 1)))))
+  (if (or (= n 1) (= n 0))
+      #f
+      (prime-helper n 2)))
+
+(define (prime-sum-pairs n)
+  (filter (lambda (pair)
+            (if (prime? (+ (car pair) (cadr pair)))
+                #t
+                #f))
+            (unique-pairs n)))
+
+;; Exercise 2.41 - 2.43
+;skipped
+
+;; Exercise 2.44 - Define the procedure up-split used by corner-split
+(define (up-split painter n)
+  (if (= n 0)
+      painter
+      (let ((smaller (up-split painter (dec n))))
+        (below painter (beside smaller smaller)))))
+(define (right-split painter n)
+  (if (= n 0)
+      painter
+      (let ((smaller (right-split painter (- n 1))))
+        (beside painter (below smaller smaller)))))
+(define (corner-split painter n)
+  (if (= n 0)
+      painter
+      (let ((up (up-split painter (- n 1)))
+            (right (right-split painter (- n 1))))
+        (let ((top-left (beside up up))
+              (bottom-right (below right right))
+              (corner (corner-split painter (- n 1))))
+          (beside (below painter top-left)
+                  (below bottom-right corner))))))
+
+;; Exercise 2.45 define split
+(define (split x y)
+  (define (helper painter n)
+    (if (= n 0)
+        painter
+        (let ((smaller (helper painter (dec n))))
+          (x painter (y smaller smaller)))))
+  helper)
+
+(define right-split2 (split beside below))
+(define up-split2 (split below beside))
+(paint (right-split2 einstein 4))
+(paint (up-split2 einstein 4))
+
