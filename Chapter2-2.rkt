@@ -355,3 +355,33 @@
 (paint (right-split2 einstein 4))
 (paint (up-split2 einstein 4))
 
+
+(define (frame-coord-map frame)
+  (lambda (v)
+    (add-vect
+     (origin-frame frame)
+     (add-vect (scale-vect (xcor-vect v)
+                           (edge1-frame frame))
+               (scale-vect (ycor-vect v)
+                           (edge2-frame frame))))))
+;; Exercise 2.46
+; just going to use these https://docs.racket-lang.org/sicp-manual/SICP_Picture_Language.html#%28part._.Vectors%29
+
+;; Exercise 2.47
+;for list based constructor
+(define (get-edge1 x)
+  (list-ref x 1))
+(define (get-edge2 x)
+  (list-ref x 2))
+(define (get-orgin x)
+  (list-ref x 0))
+
+;for cons based
+(define (alt-get-orgin x)
+  (car x))
+(define (alt-get-edge1 x)
+  (car (cdr x)))
+(define (alt-get-edge2 x)
+  (car (cdr (cdr x))))
+
+;;exercises 2.48-52 skipped
