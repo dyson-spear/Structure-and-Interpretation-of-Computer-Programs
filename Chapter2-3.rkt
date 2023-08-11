@@ -96,6 +96,16 @@
   (caddr exp))
 (define (make-exponent base exponent)
   (cond ((and (number? base) (number? exponent)) (expt base exponent))
+        ((= exponent 0) 1)
+        ((= exponent 1) base)
         (else (list '** base exponent))))
+
 (define (subtract a1 a2)
   (make-sum a1 (- a2)))
+
+;test
+(define expr1 '(+ (* 3 (** x 2)) (* 6 x)))
+(deriv expr1 'x) ;(+ (* 3 (* 2 x)) 6)
+;;Exercise 2.57 and 2.58 - skipped
+
+
